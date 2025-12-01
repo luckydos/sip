@@ -7,7 +7,6 @@
 	<title>Stock Investment Plan</title>
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 	<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css" />
 
 	<style>
 		:root {
@@ -16,14 +15,9 @@
 			--text-main: #333333;
 			--text-sub: #666666;
 
-			/* [디자인] 테두리 색상 (깔끔한 회색) */
 			--border-color: #dce1e6;
-
-			/* [디자인] 목표 입력란 배경색 (튀지 않는 은은한 회색) */
 			--input-bg: #f8f9fa;
 			--input-text: #495057;
-
-			/* [디자인] 헤더 배경 */
 			--header-bg: #f1f3f5;
 
 			--color-up: #e31b23;
@@ -34,7 +28,7 @@
 			--badge-hold: #868e96;
 
 			--tab-active-text: #111;
-			--tab-inactive-bg: #ebTeff;
+			--tab-inactive-bg: #e9ecef;
 			--tab-inactive-text: #999;
 		}
 
@@ -51,10 +45,15 @@
 			margin: 0 auto;
 		}
 
-		/* --- 헤더 --- */
+		/* --- [수정] 헤더 영역 (Flex 적용) --- */
 		.dashboard-header {
 			margin-bottom: 20px;
-			text-align: center;
+			display: flex;
+			/* 좌우 정렬을 위해 Flexbox 사용 */
+			justify-content: space-between;
+			/* 양 끝으로 벌림 */
+			align-items: center;
+			/* 수직 중앙 정렬 */
 		}
 
 		.dashboard-title h2 {
@@ -65,14 +64,47 @@
 			letter-spacing: -0.5px;
 		}
 
+		/* [신규] 새로고침 버튼 스타일 */
+		.refresh-btn {
+			background-color: #fff;
+			border: 1px solid var(--border-color);
+			border-radius: 8px;
+			padding: 10px 16px;
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--text-sub);
+			cursor: pointer;
+			transition: all 0.2s ease;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+		}
+
+		.refresh-btn:hover {
+			background-color: #fff;
+			color: #2c3e50;
+			border-color: #b0b8c1;
+			transform: translateY(-1px);
+			/* 살짝 떠오르는 효과 */
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+		}
+
+		.refresh-btn:active {
+			transform: translateY(0);
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+		}
+
+		.refresh-btn i {
+			font-size: 14px;
+		}
+
 		/* --- 툴바 (탭 영역) --- */
 		.toolbar {
 			display: flex;
 			justify-content: space-between;
 			align-items: flex-end;
-			/* [수정] 패딩 제거 -> 왼쪽 라인 완벽 일치 */
 			padding: 0;
-			/* 탭이 본문 보더 위로 올라가게 */
 			margin-bottom: -1px;
 			position: relative;
 			z-index: 10;
@@ -87,7 +119,6 @@
 			padding: 12px 30px;
 			border: 1px solid transparent;
 			border-bottom: none;
-			/* 비활성 탭 배경 (투명하거나 연한 회색) */
 			background: #e9ecef;
 			border-radius: 12px 12px 0 0;
 			font-size: 15px;
@@ -97,11 +128,8 @@
 			transition: all 0.1s ease;
 			display: flex;
 			align-items: center;
-			justify-content: center;
-			/* 가운데 정렬 확실하게 */
-			gap: 4px;
+			gap: 8px;
 			position: relative;
-			display: flex;
 		}
 
 		.tab-btn:hover {
@@ -109,31 +137,19 @@
 			color: var(--text-main);
 		}
 
-		/* [핵심 수정] 활성 탭 디자인 (일체감) */
 		.tab-btn.active {
 			background-color: var(--bg-card);
 			color: var(--tab-active-text);
 			font-weight: 700;
-			/* 테두리 색상 통일 */
 			border: 1px solid var(--border-color);
-			/* 하단을 흰색으로 덮어 본문과 연결 */
 			border-bottom: 1px solid var(--bg-card);
 			z-index: 20;
 			padding-bottom: 13px;
-			/* 높이 보정 */
 			box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.02);
 		}
 
-		/* 국기 아이콘 스타일 조정 */
-		.fi {
+		.flag-icon {
 			font-size: 18px;
-			/* 국기 크기 */
-			margin-right: 6px;
-			/* 텍스트와의 간격 */
-			border-radius: 2px;
-			/* 국기 모서리 살짝 둥글게 */
-			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-			/* 국기 입체감 */
 		}
 
 		/* 시간 표시 */
@@ -149,7 +165,6 @@
 			border-radius: 20px;
 			border: 1px solid var(--border-color);
 			margin-bottom: 8px;
-			/* 탭 높이와 균형 */
 		}
 
 		.time-display i {
@@ -161,8 +176,7 @@
 			display: none;
 			background: var(--bg-card);
 			border: 1px solid var(--border-color);
-			/* 왼쪽 위는 직각(탭 연결), 나머지는 둥글게 */
-			border-radius: 0 12px 12px 12px;
+			border-radius: 0 16px 16px 16px;
 			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 			padding: 20px;
 			animation: fadeIn 0.2s ease-out;
@@ -186,18 +200,16 @@
 			}
 		}
 
-		/* --- 테이블 디자인 (Grid 스타일) --- */
+		/* --- 테이블 디자인 --- */
 		.table-responsive {
 			overflow-x: auto;
 			width: 100%;
-			/* 테이블 외곽선 */
 			border: 1px solid var(--border-color);
 			border-radius: 8px;
 		}
 
 		table {
 			width: 100%;
-			/* sticky header를 위해 separate 유지하되 간격(spacing)을 0으로 */
 			border-collapse: separate;
 			border-spacing: 0;
 			min-width: 1400px;
@@ -207,9 +219,8 @@
 			background-color: var(--header-bg);
 			color: #333;
 			font-weight: 700;
-			padding: 14px 10px;
+			padding: 16px 12px;
 			text-align: center;
-			/* 테두리: 아래와 오른쪽 */
 			border-bottom: 1px solid var(--border-color);
 			border-right: 1px solid var(--border-color);
 			white-space: nowrap;
@@ -217,17 +228,16 @@
 			top: 0;
 			z-index: 10;
 			font-size: 14px;
+			letter-spacing: -0.3px;
 		}
 
-		/* 마지막 헤더 오른쪽 선 제거 */
 		th:last-child {
 			border-right: none;
 		}
 
 		td {
-			padding: 12px 10px;
-			/* 테두리: 아래와 오른쪽 */
-			border-bottom: 1px solid var(--border-color);
+			padding: 14px 12px;
+			border-bottom: 1px solid #f1f3f5;
 			border-right: 1px solid var(--border-color);
 			vertical-align: middle;
 			text-align: right;
@@ -236,62 +246,48 @@
 			color: #333;
 		}
 
-		/* 마지막 열 오른쪽 선 제거 */
 		td:last-child {
 			border-right: none;
 		}
 
-		/* 마지막 행 아래 선 제거 */
 		tbody tr:last-child td {
 			border-bottom: none;
 		}
 
-		/* 행 호버 효과 */
 		tbody tr:hover td {
-			background-color: #f8faff !important;
+			background-color: #f8f9fa !important;
 		}
 
-
-		/* --- [수정] 목표값 컬럼 디자인 (자연스럽게) --- */
-		/* 배경색을 아주 연한 회색으로 하여 이질감 제거 */
 		.input-val {
 			background-color: var(--input-bg) !important;
 			color: var(--input-text);
-			/* 테두리 색상은 다른 셀과 동일하게 하여 통일감 부여 */
 			border-right: 1px solid var(--border-color);
-
 			text-align: center;
 		}
 
-		/* 입력값 헤더 */
 		th.input-val {
 			background-color: #e9ecef;
-			/* 헤더보다 살짝 진하게 */
 			color: #333;
 		}
 
-
-		/* --- 고정 컬럼 (기업명) --- */
 		th:first-child,
 		td:first-child {
 			position: sticky;
 			left: 0;
 			z-index: 20;
 			background-color: #fff;
-			/* 오른쪽 테두리를 조금 더 진하게 주어 구분감 형성 */
-			border-right: 1px solid #bdc3c7;
+			border-right: 1px solid var(--border-color);
 			text-align: left;
 			padding-left: 20px;
+			box-shadow: 2px 0 5px rgba(0, 0, 0, 0.02);
 		}
 
 		th:first-child {
 			z-index: 30;
 			background-color: var(--header-bg);
-			/* 탭 연결 부위: 왼쪽 위 둥글기 제거 */
 			border-top-left-radius: 0;
 		}
 
-		/* 기업명 텍스트 */
 		.stock-name {
 			font-weight: 700;
 			color: #212529;
@@ -307,30 +303,29 @@
 			font-weight: 400;
 		}
 
-
-		/* --- UI 요소 --- */
 		.badge {
 			display: inline-block;
-			padding: 6px 12px;
+			padding: 6px 14px;
 			border-radius: 6px;
 			font-size: 12px;
 			font-weight: 700;
 			color: white;
 			text-align: center;
-			min-width: 52px;
+			min-width: 54px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 		}
 
 		.badge.buy {
-			background: var(--badge-buy);
+			background: linear-gradient(135deg, #e31b23, #ff4d4d);
 		}
 
 		.badge.sell {
-			background: var(--badge-sell);
+			background: linear-gradient(135deg, #0051c7, #3388ff);
 		}
 
 		.badge.hold {
-			background-color: var(--badge-hold);
-			opacity: 0.8;
+			background-color: #868e96;
+			opacity: 0.9;
 		}
 
 		.badge.nodata {
@@ -351,13 +346,14 @@
 		.price-text {
 			font-family: 'Roboto', sans-serif;
 			font-weight: 600;
+			letter-spacing: -0.3px;
 		}
 
 		.graph-wrapper {
 			display: flex;
 			align-items: center;
 			justify-content: flex-end;
-			gap: 10px;
+			gap: 12px;
 			width: 140px;
 			margin-left: auto;
 		}
@@ -412,13 +408,35 @@
 		@media (max-width: 768px) {
 			.container {
 				margin: 0;
+				border-radius: 0;
+				box-shadow: none;
+				background: transparent;
 			}
+
+			.dashboard-header {
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			/* 모바일 헤더 정렬 */
+			.dashboard-title h2 {
+				font-size: 20px;
+			}
+
+			.refresh-btn {
+				padding: 8px 12px;
+				font-size: 13px;
+			}
+
+			/* 모바일 버튼 크기 */
 
 			.toolbar {
 				flex-direction: column-reverse;
 				align-items: flex-start;
-				gap: 10px;
+				gap: 12px;
 				padding: 0;
+				margin-bottom: 10px;
 			}
 
 			.time-display {
@@ -447,6 +465,10 @@
 				border: none;
 			}
 
+			.content-section {
+				border-radius: 16px;
+			}
+
 			td:first-child {
 				padding-left: 15px;
 			}
@@ -461,15 +483,19 @@
 			<div class="dashboard-title">
 				<h2>Stock Investment Plan <span>포트폴리오 현황</span></h2>
 			</div>
+			<button class="refresh-btn" onclick="location.reload()">
+				<i class="fas fa-rotate-right"></i>
+				새로고침
+			</button>
 		</div>
 
 		<div class="toolbar">
 			<div class="tabs-group">
 				<button class="tab-btn active" onclick="switchTab('korea')">
-					<span class="fi fi-kr"></span> 한국 주식
+					<span class="flag-icon">🇰🇷</span> 한국 주식
 				</button>
 				<button class="tab-btn" onclick="switchTab('usa')">
-					<span class="fi fi-us"></span> 미국 주식
+					<span class="flag-icon">🇺🇸</span> 미국 주식
 				</button>
 			</div>
 			<div class="time-display">
@@ -557,7 +583,7 @@
 			{ name: "Coca-Cola", code: "KO", targetDiv: 3.00, targetPer: null },
 			{ name: "Realty Income", code: "O", targetDiv: 6.00, targetPer: null },
 			{ name: "Pfizer", code: "PFE", targetDiv: 7.00, targetPer: null },
-			{ name: "iShares 20+ Year Treasury Bond ETF", code: "TLT", targetDiv: 4.30, targetPer: null }
+			{ name: "TLT ETF", code: "TLT", targetDiv: 4.30, targetPer: null }
 		];
 
 		// ============================================================
@@ -613,7 +639,9 @@
 				if (validData) {
 					const timeStr = validData.time;
 					window[`time_${country}`] = timeStr;
-					if (document.querySelector('.tab-btn.active').innerText.includes(isKorea ? "한국" : "미국")) {
+					const activeBtnText = document.querySelector('.tab-btn.active').innerText;
+					const isKoreaTab = activeBtnText.includes("한국");
+					if ((isKorea && isKoreaTab) || (!isKorea && !isKoreaTab)) {
 						document.getElementById('globalTime').innerText = timeStr;
 					}
 				}
