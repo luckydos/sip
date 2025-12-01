@@ -304,6 +304,11 @@
 			color: #212529;
 			font-size: 15px;
 			display: block;
+			max-width: 200px;        /* 글자가 이 너비를 넘어가면 자름 (조절 가능) */
+			white-space: nowrap;     /* 줄바꿈 금지 (한 줄로 표시) */
+			overflow: hidden;        /* 넘치는 텍스트 숨김 */
+			text-overflow: ellipsis; /* 잘린 부분에 '...' 표시 */
+
 		}
 
 		.stock-code {
@@ -391,23 +396,11 @@
 			transition: width 0.5s ease;
 		}
 
-		/* 로딩 메시지 스타일 */
 		.loading-row td {
-			/* 1. 위치 고정 및 영역 설정 */
-			position: sticky;
-			left: 0;          /* 시작점은 왼쪽 끝 */
-			width: 100vw;     /* [핵심] 화면 전체 너비(Viewport Width) 사용 */
-			max-width: 100%;  /* 부모 요소 넘치지 않게 제한 */
-
-			/* 2. 내용물 정렬 */
-			display: block;   /* 블록 요소로 변경하여 너비 적용 */
-			text-align: center; /* 텍스트 가로 중앙 정렬 */
-
-			/* 3. 여백 및 디자인 */
-			padding: 60px 0;
-			border: none;
+			text-align: center;
 			color: #999;
-			box-sizing: border-box;
+			padding: 60px;
+			border: none;
 		}
 
 		.spinner {
@@ -496,13 +489,8 @@
 				padding: 0;
 			}
 
-			/* 기업명 말줄임(...) 처리 */
 			.stock-name {
-				display: block;          /* 너비를 적용하기 위해 블록 요소로 설정 */
-				max-width: 110px;        /* 글자가 이 너비를 넘어가면 자름 (조절 가능) */
-				white-space: nowrap;     /* 줄바꿈 금지 (한 줄로 표시) */
-				overflow: hidden;        /* 넘치는 텍스트 숨김 */
-				text-overflow: ellipsis; /* 잘린 부분에 '...' 표시 */
+				max-width: 80px;        /* 글자가 이 너비를 넘어가면 자름 (조절 가능) */
 			}
 
 			.table-responsive {
@@ -513,6 +501,25 @@
 			th:first-child,
 			td:first-child {
 				padding-left: 15px;
+			}
+
+			/* 로딩 메시지 스타일 */
+			.loading-row td {
+				/* 1. 위치 고정 및 영역 설정 */
+				position: sticky;
+				left: 0;          /* 시작점은 왼쪽 끝 */
+				width: 100vw;     /* [핵심] 화면 전체 너비(Viewport Width) 사용 */
+				max-width: 100%;  /* 부모 요소 넘치지 않게 제한 */
+
+				/* 2. 내용물 정렬 */
+				display: block;   /* 블록 요소로 변경하여 너비 적용 */
+				text-align: center; /* 텍스트 가로 중앙 정렬 */
+
+				/* 3. 여백 및 디자인 */
+				padding: 60px 0;
+				border: none;
+				color: #999;
+				box-sizing: border-box;
 			}
 		}
 	</style>
