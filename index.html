@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Stock Investment Plan</title>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+
+	<style>
+		:root {
+			--bg-body: #f0f2f5;
+			--bg-card: #ffffff;
+			--text-main: #1a1a1a;
+			--text-sub: #6c757d;
+			--border-color: #e9ecef;
+			--input-border-color: #ced4da;
+			/* [수정] 입력값 테두리 강조 색상 */
+
+			--color-up: #e31b23;
+			--color-down: #0051c7;
+
+			--badge-buy: #e31b23;
+			--badge-sell: #0051c7;
+			--badge-hold: #868e96;
+
+			--tab-active: #2c3e50;
+			--tab-inactive: #f8f9fa;
+		}
+
+		body {
+			font-family: 'Pretendard', sans-serif;
+			background-color: var(--bg-body);
+			margin: 0;
+			padding: 20px;
+			color: var(--text-main);
+		}
+
+		.container {
+			max-width: 1600px;
+			margin: 0 auto;
+			background-color: var(--bg-card);
+			border-radius: 16px;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+			overflow: hidden;
+			padding-bottom: 20px;
+		}
+
+		.dashboard-header {
+			padding: 25px 30px 15px 30px;
+			background: #fff;
+		}
+
+		.dashboard-title h2 {
+			margin: 0;
+			font-size: 26px;
+			font-weight: 800;
+			color: #2c3e50;
+			letter-spacing: -0.5px;
+		}
+
+		.toolbar {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-end;
+			padding: 0 30px;
+			border-bottom: 1px solid var(--border-color);
+			background-color: #fff;
+		}
+
+		.tabs-group {
+			display: flex;
+			gap: 6px;
+			margin-bottom: -1px;
+		}
+
+		.tab-btn {
+			padding: 12px 24px;
+			border: 1px solid transparent;
+			border-bottom: none;
+			background: var(--tab-inactive);
+			border-radius: 12px 12px 0 0;
+			font-size: 15px;
+			font-weight: 600;
+			color: var(--text-sub);
+			cursor: pointer;
+			transition: all 0.2s ease;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.tab-btn.active {
+			background-color: #fff;
+			color: var(--tab-active);
+			border: 1px solid var(--border-color);
+			border-bottom: 1px solid #fff;
+			box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.02);
+		}
+
+		.flag-icon {
+			font-size: 18px;
+			line-height: 1;
+		}
+
+		.time-display {
+			font-size: 13px;
+			color: #666;
+			margin-bottom: 10px;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			background: #f8f9fa;
+			padding: 6px 14px;
+			border-radius: 20px;
+		}
+
+		.time-display i {
+			color: #2c3e50;
+		}
+
+		.content-section {
+			display: none;
+			padding: 0;
+			animation: fadeIn 0.3s ease-out;
+		}
+
+		.content-section.active {
+			display: block;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(5px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.table-responsive {
+			overflow-x: auto;
+			width: 100%;
+			min-height: 200px;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: separate;
+			border-spacing: 0;
+			min-width: 1400px;
+		}
+
+		th {
+			background-color: #f8f9fa;
+			color: #495057;
+			font-weight: 700;
+			padding: 14px 12px;
+			text-align: center;
+			border-bottom: 1px solid var(--border-color);
+			white-space: nowrap;
+			position: sticky;
+			top: 0;
+			z-index: 10;
+		}
+
+		td {
+			padding: 14px 12px;
+			border-bottom: 1px solid var(--border-color);
+			vertical-align: middle;
+			text-align: right;
+			font-size: 14px;
+			white-space: nowrap;
+			color: #333;
+		}
+
+		tbody tr:hover td {
+			background-color: #f8faff !important;
+		}
+
+		/* 고정 컬럼 스타일 */
+		th:first-child,
+		td:first-child {
+			position: sticky;
+			left: 0;
+			z-index: 20;
+			background-color: #fff;
+			border-right: 1px solid var(--border-color);
+			text-align: left;
+			padding-left: 30px;
+			box-shadow: 2px 0 5px rgba(0, 0, 0, 0.03);
+		}
+
+		th:first-child {
+			z-index: 30;
+			background-color: #f8f9fa;
+		}
+
+		.stock-name {
+			font-weight: 700;
+			color: #2c3e50;
+			font-size: 15px;
+			display: block;
+		}
+
+		.stock-code {
+			font-size: 12px;
+			color: #adb5bd;
+			margin-top: 2px;
+			display: block;
+		}
+
+		.badge {
+			display: inline-block;
+			padding: 5px 12px;
+			border-radius: 6px;
+			font-size: 12px;
+			font-weight: 700;
+			color: white;
+			text-align: center;
+			min-width: 50px;
+		}
+
+		.badge.buy {
+			background-color: var(--badge-buy);
+		}
+
+		.badge.sell {
+			background-color: var(--badge-sell);
+		}
+
+		.badge.hold {
+			background-color: var(--badge-hold);
+			opacity: 0.8;
+		}
+
+		.badge.nodata {
+			background-color: #e9ecef;
+			color: #adb5bd;
+		}
+
+		.up {
+			color: var(--color-up);
+			font-weight: 600;
+		}
+
+		.down {
+			color: var(--color-down);
+			font-weight: 600;
+		}
+
+		.price-text {
+			font-family: 'Roboto', sans-serif;
+			font-weight: 500;
+		}
+
+		/* [수정됨] 인풋값 강조 (목표 배당률/PER) - 테두리 색상 진하게 변경 */
+		.input-val {
+			background-color: #fff8dc;
+			font-weight: bold;
+			color: #555;
+			text-align: center;
+			border-left: 1px solid var(--input-border-color);
+			border-right: 1px solid var(--input-border-color);
+			border-bottom: 1px solid var(--input-border-color);
+			/* 하단도 진하게 */
+		}
+
+		/* 헤더의 경우 하단 보더만 진하게 */
+		th.input-val {
+			border-bottom: 1px solid var(--input-border-color);
+			border-top: 1px solid var(--input-border-color);
+			/* 상단도 추가 */
+		}
+
+		.graph-wrapper {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 12px;
+			width: 140px;
+			margin-left: auto;
+		}
+
+		.graph-text {
+			width: 50px;
+			text-align: right;
+			font-size: 13px;
+		}
+
+		.bar-track {
+			flex-grow: 1;
+			height: 6px;
+			background-color: #eee;
+			border-radius: 3px;
+			overflow: hidden;
+			display: flex;
+			position: relative;
+		}
+
+		.bar-fill {
+			height: 100%;
+			border-radius: 3px;
+			transition: width 0.5s ease;
+		}
+
+		.loading-row td {
+			text-align: center;
+			color: #999;
+			padding: 30px;
+		}
+
+		.spinner {
+			display: inline-block;
+			width: 20px;
+			height: 20px;
+			border: 3px solid rgba(0, 0, 0, 0.1);
+			border-radius: 50%;
+			border-top-color: var(--tab-active);
+			animation: spin 1s ease-in-out infinite;
+			vertical-align: middle;
+			margin-right: 10px;
+		}
+
+		@keyframes spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		@media (max-width: 768px) {
+			.container {
+				margin: 0;
+				border-radius: 0;
+			}
+
+			.toolbar {
+				flex-direction: column-reverse;
+				align-items: flex-start;
+				gap: 10px;
+				padding-top: 10px;
+			}
+
+			.time-display {
+				width: 100%;
+				justify-content: center;
+				margin-bottom: 0;
+			}
+
+			.tabs-group {
+				width: 100%;
+			}
+
+			.tab-btn {
+				flex: 1;
+				justify-content: center;
+			}
+
+			td:first-child {
+				padding-left: 15px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container">
+		<div class="dashboard-header">
+			<div class="dashboard-title">
+				<h2>Stock Investment Plan <span>포트폴리오 현황</span></h2>
+			</div>
+		</div>
+
+		<div class="toolbar">
+			<div class="tabs-group">
+				<button class="tab-btn active" onclick="switchTab('korea')">
+					<span class="flag-icon">🇰🇷</span> 한국 주식
+				</button>
+				<button class="tab-btn" onclick="switchTab('usa')">
+					<span class="flag-icon">🇺🇸</span> 미국 주식
+				</button>
+			</div>
+			<div class="time-display">
+				<i class="far fa-clock"></i>
+				<span id="globalTime">업데이트 대기중...</span>
+			</div>
+		</div>
+
+		<div id="korea" class="content-section active">
+			<div class="table-responsive">
+				<table id="tableKorea">
+					<thead>
+						<tr>
+							<th>기업명</th>
+							<th class="input-val">목표<br>배당률(%)</th>
+							<th class="input-val">목표<br>PER(배)</th>
+							<th>Action</th>
+							<th>목표가</th>
+							<th>현재가</th>
+							<th>등락률</th>
+							<th>52주 최고</th>
+							<th>고점 대비</th>
+							<th>시가총액</th>
+							<th>PER</th>
+							<th>EPS</th>
+							<th>PBR</th>
+							<th>배당률</th>
+							<th>배당금</th>
+							<th>배당성향</th>
+						</tr>
+					</thead>
+					<tbody id="tbodyKorea"></tbody>
+				</table>
+			</div>
+		</div>
+
+		<div id="usa" class="content-section">
+			<div class="table-responsive">
+				<table id="tableUSA">
+					<thead>
+						<tr>
+							<th>기업명</th>
+							<th class="input-val">목표<br>배당률(%)</th>
+							<th class="input-val">목표<br>PER(배)</th>
+							<th>Action</th>
+							<th>목표가</th>
+							<th>현재가</th>
+							<th>등락률</th>
+							<th>52주 최고</th>
+							<th>고점 대비</th>
+							<th>시가총액/AUM</th>
+							<th>PER</th>
+							<th>EPS</th>
+							<th>PBR</th>
+							<th>배당률</th>
+							<th>배당금</th>
+							<th>배당성향</th>
+						</tr>
+					</thead>
+					<tbody id="tbodyUSA"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// ============================================================
+		// 1. [설정] Google Apps Script URL
+		// ============================================================
+		const API_URL = "https://script.google.com/macros/s/AKfycbz80x6AyIftaDyqX68cyv3spp2x8gg14Rq1gPnb8NSToi0LInPgOkBbn2lflJSkd_8u/exec";
+
+		// ============================================================
+		// 2. [설정] 종목 및 목표 설정 (Target Div% or Target PER)
+		// ============================================================
+		const koreaStocks = [
+			{ name: "기아", code: "000270", targetDiv: 6.00, targetPer: null },
+			{ name: "삼성증권", code: "016360", targetDiv: 5.00, targetPer: null },
+			{ name: "KT&G", code: "033780", targetDiv: 4.00, targetPer: null },
+			{ name: "한전KPS", code: "051600", targetDiv: 5.00, targetPer: null },
+			{ name: "메리츠금융지주", code: "138040", targetDiv: null, targetPer: 10 }
+		];
+
+		const usaStocks = [
+			{ name: "Cisco Systems", code: "CSCO", targetDiv: 3.00, targetPer: null },
+			{ name: "Coca-Cola", code: "KO", targetDiv: 3.00, targetPer: null },
+			{ name: "Realty Income", code: "O", targetDiv: 6.00, targetPer: null },
+			{ name: "Pfizer", code: "PFE", targetDiv: 7.00, targetPer: null },
+			{ name: "TLT ETF", code: "TLT", targetDiv: 4.30, targetPer: null }
+		];
+
+		// ============================================================
+		// 3. 로직 함수: 목표가 계산 (Excel 수식 구현)
+		// ============================================================
+		function calculateTarget(data, config) {
+			try {
+				// 1순위: 목표 배당률이 있는 경우 (DivAmt / TargetYield)
+				if (config.targetDiv) {
+					if (!data.divAmt) return 0;
+					return data.divAmt / (config.targetDiv / 100);
+				}
+				// 2순위: 목표 PER가 있는 경우 (EPS * TargetPER)
+				if (config.targetPer) {
+					if (!data.eps) return 0;
+					return data.eps * config.targetPer;
+				}
+				return "no data";
+			} catch (e) {
+				return "err";
+			}
+		}
+
+		function getAction(current, target) {
+			if (typeof target === 'string') return { text: "판단불가", class: "nodata" };
+			if (!current) return { text: "로딩중", class: "nodata" };
+
+			// IF(H7 < G7, "매수", IF(H7 > G7*1.2, "매도", "보유"))
+			if (current < target) return { text: "매수", class: "buy" };
+			else if (current > target * 1.2) return { text: "매도", class: "sell" };
+			else return { text: "보유", class: "hold" };
+		}
+
+		// ============================================================
+		// 4. 데이터 로드 및 렌더링
+		// ============================================================
+		async function fetchAndRender(country) {
+			const tableId = country === 'korea' ? 'tbodyKorea' : 'tbodyUSA';
+			const stockList = country === 'korea' ? koreaStocks : usaStocks;
+			const tbody = document.getElementById(tableId);
+			const isKorea = country === 'korea';
+
+			tbody.innerHTML = `<tr class="loading-row"><td colspan="16"><div class="spinner"></div>데이터를 불러오는 중입니다...</td></tr>`;
+
+			const promises = stockList.map(item =>
+				fetch(`${API_URL}?ticker=${item.code}`)
+					.then(res => res.json())
+					.then(data => {
+						// 목표가 계산
+						const calculatedTarget = calculateTarget(data, item);
+						return { ...data, name: item.name, targetDiv: item.targetDiv, targetPer: item.targetPer, targetPrice: calculatedTarget };
+					})
+					.catch(err => ({ ...item, error: true }))
+			);
+
+			try {
+				const rowDataList = await Promise.all(promises);
+
+				const validData = rowDataList.find(d => !d.error && d.time);
+				if (validData) {
+					const timeStr = validData.time;
+					window[`time_${country}`] = timeStr;
+					if (document.querySelector('.tab-btn.active').innerText.includes(isKorea ? "한국" : "미국")) {
+						document.getElementById('globalTime').innerText = timeStr;
+					}
+				}
+
+				renderTableBody(tbody, rowDataList, isKorea);
+
+			} catch (error) {
+				tbody.innerHTML = `<tr><td colspan="16" style="text-align:center;">데이터 로드 실패</td></tr>`;
+			}
+		}
+
+		function renderTableBody(tbody, dataList, isKorea) {
+			tbody.innerHTML = "";
+			const maxChange = Math.max(...dataList.map(d => d.changeRate ? Math.abs(d.changeRate) : 0)) || 0.01;
+			const maxDrop = Math.max(...dataList.map(d => d.dropRate ? Math.abs(d.dropRate) : 0)) || 0.01;
+
+			dataList.forEach(item => {
+				if (item.error) {
+					tbody.innerHTML += `<tr><td>${item.name}</td><td colspan="15">호출 실패</td></tr>`;
+					return;
+				}
+
+				const action = getAction(item.price, item.targetPrice);
+				const currency = isKorea ? "₩" : "$";
+				const fmt = (n) => n ? n.toLocaleString(undefined, { maximumFractionDigits: 0 }) : "-";
+				const fmtUsd = (n) => n ? n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "-";
+				const fmtPct = (n) => n ? (n * 100).toFixed(2) + "%" : "0.00%";
+
+				// 가격 포맷 (한국: 정수, 미국: 소수점)
+				const displayPrice = isKorea ? fmt(item.price) : fmtUsd(item.price);
+				const displayTarget = typeof item.targetPrice === 'number' ? (isKorea ? fmt(item.targetPrice) : fmtUsd(item.targetPrice)) : "-";
+
+				// 그래프 설정
+				const changeVal = item.changeRate || 0;
+				const changeColor = changeVal < 0 ? "#0051c7" : "#e31b23";
+				const changeWidth = (Math.abs(changeVal) / maxChange) * 100;
+
+				const dropVal = item.dropRate || 0;
+				const dropColor = "#0051c7";
+				const dropWidth = (Math.abs(dropVal) / maxDrop) * 100;
+
+				const tr = `
+                    <tr>
+                        <td>
+                            <span class="stock-name">${item.name}</span>
+                            <span class="stock-code">${item.ticker || item.code}</span>
+                        </td>
+                        <td class="input-val">${item.targetDiv ? item.targetDiv.toFixed(2) + "%" : ""}</td>
+                        <td class="input-val">${item.targetPer ? item.targetPer : ""}</td>
+                        
+                        <td style="text-align:center;"><span class="badge ${action.class}">${action.text}</span></td>
+                        <td class="price-text" style="color:#2c3e50;">${currency}${displayTarget}</td>
+                        <td class="price-text" style="font-weight:700;">${currency}${displayPrice}</td>
+                        
+                        <td>
+                            <div class="graph-wrapper">
+                                <span class="graph-text ${changeVal > 0 ? 'up' : (changeVal < 0 ? 'down' : '')}">${fmtPct(changeVal)}</span>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width:${changeWidth}%; background-color:${changeColor}; margin-${changeVal < 0 ? 'left' : 'right'}: auto;"></div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="price-text">${currency}${isKorea ? fmt(item.high52) : fmtUsd(item.high52)}</td>
+
+                        <td>
+                            <div class="graph-wrapper">
+                                <span class="graph-text down">${fmtPct(dropVal)}</span>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width:${dropWidth}%; background-color:${dropColor}; margin-left: auto;"></div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>${item.marketCap}</td>
+                        <td>${item.per || '-'}</td>
+                        <td class="price-text">${isKorea ? '₩' : '$'}${isKorea ? fmt(item.eps) : fmtUsd(item.eps)}</td>
+                        <td>${item.pbr || '-'}</td>
+                        <td style="color:#e31b23; font-weight:600;">${fmtPct(item.divYield)}</td>
+                        <td class="price-text">${isKorea ? '₩' : '$'}${isKorea ? fmt(item.divAmt) : fmtUsd(item.divAmt)}</td>
+                        <td>${fmtPct(item.payout)}</td>
+                    </tr>
+                `;
+				tbody.innerHTML += tr;
+			});
+		}
+
+		function switchTab(country) {
+			document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+			event.currentTarget.classList.add('active');
+			document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+			document.getElementById(country).classList.add('active');
+
+			const savedTime = window[`time_${country}`];
+			document.getElementById('globalTime').innerText = savedTime || "업데이트 중...";
+		}
+
+		window.onload = () => {
+			fetchAndRender('korea');
+			fetchAndRender('usa');
+		};
+	</script>
+</body>
+
+</html>
