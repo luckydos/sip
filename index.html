@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +7,6 @@
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 	<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css" />
-
 	<style>
 		/* 모든 요소의 너비 계산에 패딩/테두리 포함 */
 		* {
@@ -24,6 +22,7 @@
 			--header-bg: #f8f9fa;
 			--color-up: #e31b23;
 			--color-down: #0051c7;
+			--color-danger: #6f42c1; /* -50% 초과 시 사용할 보라색 */
 			--badge-buy: #e31b23;
 			--badge-sell: #0051c7;
 			--badge-hold: #868e96;
@@ -41,7 +40,6 @@
 			transition: background-color 0.3s ease;
 			overflow-y: scroll;
 			overflow-x: hidden;
-			/* 전체 가로 스크롤 방지 */
 		}
 
 		.container {
@@ -52,43 +50,26 @@
 		}
 
 		/* --- 공통 유틸리티 --- */
-		.up {
-			color: var(--color-up) !important;
-			font-weight: 700;
-		}
+		.up { color: var(--color-up) !important; font-weight: 700; }
+		.down { color: var(--color-down) !important; font-weight: 700; }
 
-		.down {
-			color: var(--color-down) !important;
-			font-weight: 700;
-		}
-
+		/* Badge 스타일 개선: 상하 패딩 확대 및 가독성 개선 */
 		.badge {
 			display: inline-block;
-			padding: 4px 8px;
+			padding: 6px 10px;
 			border-radius: 6px;
-			font-size: 12px;
-			font-weight: 700;
+			font-size: 13px;
+			font-weight: 600;
 			color: white;
 			text-align: center;
-			min-width: 50px;
+			min-width: 55px;
+			line-height: 1.2;
 		}
 
-		.badge.buy {
-			background: var(--badge-buy);
-		}
-
-		.badge.sell {
-			background: var(--badge-sell);
-		}
-
-		.badge.hold {
-			background: var(--badge-hold);
-		}
-
-		.badge.nodata {
-			background: #e9ecef;
-			color: #adb5bd;
-		}
+		.badge.buy { background: var(--badge-buy); }
+		.badge.sell { background: var(--badge-sell); }
+		.badge.hold { background: var(--badge-hold); }
+		.badge.nodata { background: #e9ecef; color: #adb5bd; }
 
 		/* --- 헤더 & 버튼 --- */
 		.dashboard-header {
@@ -193,28 +174,19 @@
 		}
 
 		/* --- PC View Styles --- */
-		.pc-view {
-			display: block;
-		}
+		.pc-view { display: block; }
+		.mobile-view { display: none; }
 
-		.mobile-view {
-			display: none;
-		}
-
-		/* 테이블 래퍼: 스크롤바 자체를 숨김 처리하여 깔끔하게 (내용은 잘릴 수 있음 -> 툴팁으로 해결) */
 		.table-responsive {
 			width: 100%;
 			border: 1px solid var(--border-color);
 			border-radius: 8px;
 			overflow: hidden;
-			/* 강제로 스크롤 숨김 */
 		}
 
 		table {
-			/* [핵심 수정] min-width 제거하여 무조건 100% 맞춤 */
 			table-layout: fixed;
 			width: 100%;
-			/* min-width: 1200px;  <-- 이 부분을 삭제했습니다 */
 			border-collapse: separate;
 			border-spacing: 0;
 		}
@@ -232,26 +204,21 @@
 			font-size: 14px;
 			overflow: hidden;
 			text-overflow: ellipsis;
-			/* 헤더도 넘치면 ... 처리 */
 		}
 
 		td {
 			padding: 14px 8px;
-			/* 패딩을 살짝 줄여 공간 확보 */
 			border-bottom: 1px solid var(--border-color);
 			border-right: 1px solid var(--border-color);
 			text-align: right;
 			font-size: 14px;
 			color: #333;
 			vertical-align: middle;
-
-			/* [핵심] 내용이 칸보다 길면 ... 처리 */
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
 		}
 
-		/* [고정 컬럼] */
 		th:first-child,
 		td:first-child {
 			position: sticky;
@@ -267,15 +234,30 @@
 			background: var(--header-bg);
 		}
 
+		/* 기업명/코드 영역 스타일: Flex를 사용하여 간격 제어 */
+		.name-wrapper {
+			display: flex;
+			flex-direction: column;
+			gap: 3px; /* 이름과 코드 사이 간격 좁힘 */
+			line-height: 1.2;
+			text-align: left;
+			padding-left: 8px;
+		}
+
 		.stock-name {
 			font-weight: 700;
 			color: #212529;
 			font-size: 15px;
 			display: block;
-			width: 100%;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
+		}
+		
+		.stock-code {
+			font-size: 11px;
+			color: #999;
+			display: block;
 		}
 
 		.input-val {
@@ -290,7 +272,6 @@
 			justify-content: flex-end;
 			gap: 6px;
 			width: 100%;
-			/* 그래프 영역도 유동적으로 */
 			margin-left: auto;
 		}
 
@@ -435,11 +416,7 @@
 			animation: spin 1s infinite linear;
 		}
 
-		@keyframes spin {
-			to {
-				transform: rotate(360deg);
-			}
-		}
+		@keyframes spin { to { transform: rotate(360deg); } }
 
 		.loading-msg {
 			display: flex;
@@ -454,90 +431,25 @@
 			font-size: 15px;
 		}
 
-		/* ----------------------------------------------------
-           [Logic] View Mode Toggle
-           ---------------------------------------------------- */
+		/* --- Logic View Mode Toggle --- */
 		@media (max-width: 768px) {
-			body:not(.force-pc) .pc-view {
-				display: none !important;
-			}
-
-			body:not(.force-pc) .mobile-view {
-				display: block !important;
-			}
-
-			body {
-				padding: 15px 10px;
-				background-color: #f0f2f5;
-			}
-
-			.container {
-				margin: 0;
-				max-width: 100%;
-			}
-
-			.dashboard-header {
-				flex-direction: column;
-				gap: 10px;
-				align-items: stretch;
-			}
-
-			.btn-group {
-				width: 100%;
-			}
-
-			.action-btn {
-				flex: 1;
-				justify-content: center;
-			}
-
-			.toolbar {
-				flex-direction: column;
-				gap: 10px;
-			}
-
-			.tabs-group {
-				width: 100%;
-			}
-
-			.tab-btn {
-				flex: 1;
-				justify-content: center;
-				background: #fff;
-				border: 1px solid var(--border-color);
-			}
-
-			.tab-btn.active {
-				background: #333;
-				color: #fff;
-				border: 1px solid #333;
-			}
-
-			.time-display {
-				width: 100%;
-				text-align: right;
-				background: transparent;
-				border: none;
-				padding: 0;
-			}
-
-			.time-display i {
-				display: none;
-			}
-
-			.content-section {
-				padding: 0;
-				background: transparent;
-				border: none;
-				box-shadow: none;
-			}
+			body:not(.force-pc) .pc-view { display: none !important; }
+			body:not(.force-pc) .mobile-view { display: block !important; }
+			body { padding: 15px 10px; background-color: #f0f2f5; }
+			.container { margin: 0; max-width: 100%; }
+			.dashboard-header { flex-direction: column; gap: 10px; align-items: stretch; }
+			.btn-group { width: 100%; }
+			.action-btn { flex: 1; justify-content: center; }
+			.toolbar { flex-direction: column; gap: 10px; }
+			.tabs-group { width: 100%; }
+			.tab-btn { flex: 1; justify-content: center; background: #fff; border: 1px solid var(--border-color); }
+			.tab-btn.active { background: #333; color: #fff; border: 1px solid #333; }
+			.time-display { width: 100%; text-align: right; background: transparent; border: none; padding: 0; }
+			.time-display i { display: none; }
+			.content-section { padding: 0; background: transparent; border: none; box-shadow: none; }
 		}
 
-		body.force-mobile {
-			background-color: #2c3e50 !important;
-			overflow: hidden;
-		}
-
+		body.force-mobile { background-color: #2c3e50 !important; overflow: hidden; }
 		body.force-mobile .container {
 			max-width: 420px;
 			height: 90vh;
@@ -549,95 +461,30 @@
 			overflow-y: auto;
 			display: block;
 		}
+		body.force-mobile .pc-view { display: none !important; }
+		body.force-mobile .mobile-view { display: block !important; }
+		body.force-mobile .dashboard-header { flex-direction: column; gap: 10px; align-items: stretch; }
+		body.force-mobile .btn-group { width: 100%; }
+		body.force-mobile .action-btn { flex: 1; justify-content: center; }
+		body.force-mobile .toolbar { flex-direction: column; gap: 10px; }
+		body.force-mobile .tabs-group { width: 100%; }
+		body.force-mobile .tab-btn { flex: 1; justify-content: center; background: #fff; border: 1px solid var(--border-color); }
+		body.force-mobile .tab-btn.active { background: #333; color: #fff; border: 1px solid #333; }
+		body.force-mobile .time-display { width: 100%; text-align: right; background: transparent; border: none; padding: 0; }
+		body.force-mobile .time-display i { display: none; }
+		body.force-mobile .content-section { padding: 0; background: transparent; border: none; box-shadow: none; }
 
-		body.force-mobile .pc-view {
-			display: none !important;
-		}
-
-		body.force-mobile .mobile-view {
-			display: block !important;
-		}
-
-		body.force-mobile .dashboard-header {
-			flex-direction: column;
-			gap: 10px;
-			align-items: stretch;
-		}
-
-		body.force-mobile .btn-group {
-			width: 100%;
-		}
-
-		body.force-mobile .action-btn {
-			flex: 1;
-			justify-content: center;
-		}
-
-		body.force-mobile .toolbar {
-			flex-direction: column;
-			gap: 10px;
-		}
-
-		body.force-mobile .tabs-group {
-			width: 100%;
-		}
-
-		body.force-mobile .tab-btn {
-			flex: 1;
-			justify-content: center;
-			background: #fff;
-			border: 1px solid var(--border-color);
-		}
-
-		body.force-mobile .tab-btn.active {
-			background: #333;
-			color: #fff;
-			border: 1px solid #333;
-		}
-
-		body.force-mobile .time-display {
-			width: 100%;
-			text-align: right;
-			background: transparent;
-			border: none;
-			padding: 0;
-		}
-
-		body.force-mobile .time-display i {
-			display: none;
-		}
-
-		body.force-mobile .content-section {
-			padding: 0;
-			background: transparent;
-			border: none;
-			box-shadow: none;
-		}
-
-		body.force-pc {
-			overflow-x: auto; /* 바디 스크롤 허용 (필요시) */
-			background-color: var(--bg-body);
-		}
-
-		body.force-pc .container {
-			width: 100%;
-			max-width: 100%;
-			padding: 0 5px;
-		}
-
+		body.force-pc { overflow-x: auto; background-color: var(--bg-body); }
+		body.force-pc .container { width: 100%; max-width: 100%; padding: 0 5px; }
 		body.force-pc .pc-view { display: block !important; }
-
 		body.force-pc .mobile-view { display: none !important; }
-
 		body.force-pc .table-responsive {
 			display: block;
 			width: 100%;
-			overflow-x: auto; /* 가로 스크롤 생성 */
-			-webkit-overflow-scrolling: touch; /* 부드러운 스크롤 */
+			overflow-x: auto;
+			-webkit-overflow-scrolling: touch;
 		}
-
 		body.force-pc table {
-			/* PC 뷰에서는 좁게 찌그러지지 않도록 너비를 고정 */
 			width: 1600px !important;
 			min-width: 1600px !important;
 		}
@@ -646,7 +493,6 @@
 </head>
 
 <body>
-
 	<div class="container">
 		<div class="dashboard-header">
 			<div class="dashboard-title">
@@ -774,7 +620,6 @@
 
 	<script>
 		const API_URL = "https://script.google.com/macros/s/AKfycbz80x6AyIftaDyqX68cyv3spp2x8gg14Rq1gPnb8NSToi0LInPgOkBbn2lflJSkd_8u/exec";
-
 		const koreaStocks = [
 			{ name: "기아", code: "000270", targetDiv: 6.00, targetPer: null },
 			{ name: "삼성증권", code: "016360", targetDiv: 5.00, targetPer: null },
@@ -782,7 +627,6 @@
 			{ name: "한전KPS", code: "051600", targetDiv: 5.00, targetPer: null },
 			{ name: "메리츠금융지주", code: "138040", targetDiv: null, targetPer: 10 }
 		];
-
 		const usaStocks = [
 			{ name: "Cisco Systems", code: "CSCO", targetDiv: 3.00, targetPer: null },
 			{ name: "Coca-Cola", code: "KO", targetDiv: 3.00, targetPer: null },
@@ -791,10 +635,13 @@
 			{ name: "iShares 20+ Treasury", code: "TLT", targetDiv: 4.30, targetPer: null }
 		];
 
+		// [설정] 그래프 절대값 기준 (1.0 = 100%)
+		const FIX_SCALE_CHANGE = 0.3; // 등락률 기준 30%
+		const FIX_SCALE_DROP = 0.5;   // 고점대비 기준 -50%
+
 		function toggleViewMode() {
 			const body = document.body;
 			const isPcWidth = window.innerWidth > 768;
-
 			const hasForcePc = body.classList.contains('force-pc');
 			const hasForceMobile = body.classList.contains('force-mobile');
 
@@ -813,7 +660,6 @@
 			const btnIcon = document.querySelector('#viewToggleBtn i');
 			const btnText = document.querySelector('#viewToggleBtn span');
 			const isPcWidth = window.innerWidth > 768;
-
 			const hasForcePc = body.classList.contains('force-pc');
 			const hasForceMobile = body.classList.contains('force-mobile');
 
@@ -906,9 +752,7 @@
 
 		function renderTableBody(tbody, dataList, isKorea) {
 			tbody.innerHTML = "";
-			const maxChange = Math.max(...dataList.map(d => d.changeRate ? Math.abs(d.changeRate) : 0)) || 0.01;
-			const maxDrop = Math.max(...dataList.map(d => d.dropRate ? Math.abs(d.dropRate) : 0)) || 0.01;
-
+			
 			dataList.forEach(item => {
 				if (item.error) { tbody.innerHTML += `<tr><td>${item.name}</td><td colspan="15">Error</td></tr>`; return; }
 
@@ -917,52 +761,62 @@
 				const fmt = (n) => n ? n.toLocaleString(undefined, { maximumFractionDigits: isKorea ? 0 : 2 }) : "-";
 				const fmtPct = (n) => n ? (n * 100).toFixed(2) + "%" : "0.00%";
 
-				const changeColor = (item.changeRate || 0) < 0 ? "#0051c7" : "#e31b23";
-				const changeW = (Math.abs(item.changeRate || 0) / maxChange) * 100;
-				const dropW = (Math.abs(item.dropRate || 0) / maxDrop) * 100;
+				const changeVal = item.changeRate || 0;
+				const dropVal = item.dropRate || 0;
+
+				// 그래프 너비 절대값 계산 (최대 100% 캡 적용)
+				const changeW = Math.min((Math.abs(changeVal) / FIX_SCALE_CHANGE) * 100, 100);
+				const dropW = Math.min((Math.abs(dropVal) / FIX_SCALE_DROP) * 100, 100);
+				
+				const changeColor = changeVal < 0 ? "#0051c7" : "#e31b23";
+				
+				// [수정] 고점대비 -50% 초과 시(절대값 기준) 보라색, 아니면 파란색
+				const dropColor = Math.abs(dropVal) > FIX_SCALE_DROP ? "#6f42c1" : "#0051c7";
 
 				let marketCap = item.marketCap || "-";
 				if (marketCap.includes("조 ")) marketCap = marketCap.replace("조 ", "조<br>");
 
-				/* [수정] 모든 셀에 툴팁 적용 */
 				const tr = `
-                    <tr>
-                        <td><span class="stock-name" title="${item.name}">${item.name}</span><br><span style="font-size:11px; color:#999;">${item.ticker || item.code}</span></td>
-                        <td class="input-val">${item.targetDiv ? item.targetDiv.toFixed(2) + "%" : ""}</td>
-                        <td class="input-val">${item.targetPer || ""}</td>
-                        <td style="text-align:center;"><span class="badge ${action.class}">${action.text}</span></td>
-                        <td title="${curr}${fmt(item.targetPrice)}" style="color:#666;">${curr}${fmt(item.targetPrice)}</td>
-                        <td title="${curr}${fmt(item.price)}" style="font-weight:700;">${curr}${fmt(item.price)}</td>
-                        <td>
-                            <div class="graph-wrapper">
-                                <span class="${(item.changeRate || 0) > 0 ? 'up' : (item.changeRate || 0) < 0 ? 'down' : ''}">${fmtPct(item.changeRate)}</span>
-                                <div class="bar-track"><div class="bar-fill" style="width:${changeW}%; background:${changeColor}; margin-${(item.changeRate || 0) < 0 ? 'left' : 'right'}:auto;"></div></div>
-                            </div>
-                        </td>
-                        <td title="${curr}${fmt(item.high52)}">${curr}${fmt(item.high52)}</td>
-                        <td>
-                            <div class="graph-wrapper">
-                                <span class="down">${fmtPct(item.dropRate)}</span>
-                                <div class="bar-track"><div class="bar-fill" style="width:${dropW}%; background:#0051c7; margin-left:auto;"></div></div>
-                            </div>
-                        </td>
-                        <td style="line-height:1.2; font-size:12px;">${marketCap}</td>
-                        <td title="${item.per}">${item.per || '-'}</td>
-                        <td title="${curr}${fmt(item.eps)}">${curr}${fmt(item.eps)}</td>
-                        <td title="${item.pbr}">${item.pbr || '-'}</td>
-                        <td title="${fmtPct(item.divYield)}" style="color:#e31b23; font-weight:600;">${fmtPct(item.divYield)}</td>
-                        <td title="${curr}${fmt(item.divAmt)}">${curr}${fmt(item.divAmt)}</td>
-                        <td title="${fmtPct(item.payout)}">${fmtPct(item.payout)}</td>
-                    </tr>`;
+					<tr>
+						<td style="text-align:left;">
+							<div class="name-wrapper">
+								<span class="stock-name" title="${item.name}">${item.name}</span>
+								<span class="stock-code">${item.ticker || item.code}</span>
+							</div>
+						</td>
+						<td class="input-val">${item.targetDiv ? item.targetDiv.toFixed(2) + "%" : ""}</td>
+						<td class="input-val">${item.targetPer || ""}</td>
+						<td style="text-align:center;"><span class="badge ${action.class}">${action.text}</span></td>
+						<td title="${curr}${fmt(item.targetPrice)}" style="color:#666;">${curr}${fmt(item.targetPrice)}</td>
+						<td title="${curr}${fmt(item.price)}" style="font-weight:700;">${curr}${fmt(item.price)}</td>
+						<td>
+							<div class="graph-wrapper">
+								<span class="${changeVal > 0 ? 'up' : changeVal < 0 ? 'down' : ''}">${fmtPct(changeVal)}</span>
+								<div class="bar-track"><div class="bar-fill" style="width:${changeW}%; background:${changeColor}; margin-${changeVal < 0 ? 'left' : 'right'}:auto;"></div></div>
+							</div>
+						</td>
+						<td title="${curr}${fmt(item.high52)}">${curr}${fmt(item.high52)}</td>
+						<td>
+							<div class="graph-wrapper">
+								<span class="down">${fmtPct(dropVal)}</span>
+								<div class="bar-track"><div class="bar-fill" style="width:${dropW}%; background:${dropColor}; margin-left:auto;"></div></div>
+							</div>
+						</td>
+						<td style="line-height:1.2; font-size:12px;">${marketCap}</td>
+						<td title="${item.per}">${item.per || '-'}</td>
+						<td title="${curr}${fmt(item.eps)}">${curr}${fmt(item.eps)}</td>
+						<td title="${item.pbr}">${item.pbr || '-'}</td>
+						<td title="${fmtPct(item.divYield)}" style="color:#e31b23; font-weight:600;">${fmtPct(item.divYield)}</td>
+						<td title="${curr}${fmt(item.divAmt)}">${curr}${fmt(item.divAmt)}</td>
+						<td title="${fmtPct(item.payout)}">${fmtPct(item.payout)}</td>
+					</tr>`;
 				tbody.innerHTML += tr;
 			});
 		}
 
 		function renderMobileList(container, dataList, isKorea) {
 			container.innerHTML = "";
-			const maxChange = Math.max(...dataList.map(d => d.changeRate ? Math.abs(d.changeRate) : 0)) || 0.01;
-			const maxDrop = Math.max(...dataList.map(d => d.dropRate ? Math.abs(d.dropRate) : 0)) || 0.01;
-
+			
 			dataList.forEach(item => {
 				if (item.error) return;
 				const action = getAction(item.price, item.targetPrice);
@@ -973,63 +827,68 @@
 				const changeVal = item.changeRate || 0;
 				const dropVal = item.dropRate || 0;
 				const changeColor = changeVal < 0 ? "#0051c7" : "#e31b23";
-				const changeW = Math.min((Math.abs(changeVal) / maxChange) * 100, 100);
-				const dropW = Math.min((Math.abs(dropVal) / maxDrop) * 100, 100);
+
+				// 그래프 너비 절대값 계산 (최대 100% 캡 적용)
+				const changeW = Math.min((Math.abs(changeVal) / FIX_SCALE_CHANGE) * 100, 100);
+				const dropW = Math.min((Math.abs(dropVal) / FIX_SCALE_DROP) * 100, 100);
+
+				// [수정] 고점대비 -50% 초과 시(절대값 기준) 보라색, 아니면 파란색
+				const dropColor = Math.abs(dropVal) > FIX_SCALE_DROP ? "#6f42c1" : "#0051c7";
 
 				const cardHtml = `
-                    <div class="mobile-card">
-                        <div class="m-header">
-                            <div class="m-stock-info">
-                                <h3>${item.name}</h3>
-                                <span>${item.ticker || item.code}</span>
-                            </div>
-                            <span class="badge ${action.class}" style="font-size:14px; padding:6px 12px;">${action.text}</span>
-                        </div>
-                        <div class="m-body">
-                            <div class="m-price-row">
-                                <div class="m-current-price ${changeVal > 0 ? 'up' : (changeVal < 0 ? 'down' : '')}">
-                                    ${curr}${fmt(item.price)}
-                                </div>
-                                <div class="m-target-price">
-                                    목표가 <strong>${curr}${fmt(item.targetPrice)}</strong>
-                                </div>
-                            </div>
-                            <div class="m-grid">
-                                <div class="m-grid-item">
-                                    <span class="m-grid-label">배당률</span>
-                                    <span class="m-grid-value up">${fmtPct(item.divYield)}</span>
-                                </div>
-                                <div class="m-grid-item">
-                                    <span class="m-grid-label">PER</span>
-                                    <span class="m-grid-value">${item.per || '-'}</span>
-                                </div>
-                                <div class="m-grid-item">
-                                    <span class="m-grid-label">52주 최고</span>
-                                    <span class="m-grid-value">${curr}${fmt(item.high52)}</span>
-                                </div>
-                            </div>
-                            <div class="m-footer">
-                                <div class="m-bar-group">
-                                    <div class="m-bar-label">
-                                        <span>등락률</span>
-                                        <span class="${changeVal > 0 ? 'up' : (changeVal < 0 ? 'down' : '')}">${fmtPct(changeVal)}</span>
-                                    </div>
-                                    <div class="m-bar-bg">
-                                        <div class="m-bar-fill" style="width:${changeW}%; background-color:${changeColor}; margin-${changeVal < 0 ? 'left' : 'right'}: auto;"></div>
-                                    </div>
-                                </div>
-                                <div class="m-bar-group">
-                                    <div class="m-bar-label">
-                                        <span>고점대비</span>
-                                        <span class="down">${fmtPct(dropVal)}</span>
-                                    </div>
-                                    <div class="m-bar-bg">
-                                        <div class="m-bar-fill" style="width:${dropW}%; background-color:#0051c7; margin-left: auto;"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
+					<div class="mobile-card">
+						<div class="m-header">
+							<div class="m-stock-info">
+								<h3>${item.name}</h3>
+								<span>${item.ticker || item.code}</span>
+							</div>
+							<span class="badge ${action.class}" style="font-size:14px; padding:6px 12px;">${action.text}</span>
+						</div>
+						<div class="m-body">
+							<div class="m-price-row">
+								<div class="m-current-price ${changeVal > 0 ? 'up' : (changeVal < 0 ? 'down' : '')}">
+									${curr}${fmt(item.price)}
+								</div>
+								<div class="m-target-price">
+									목표가 <strong>${curr}${fmt(item.targetPrice)}</strong>
+								</div>
+							</div>
+							<div class="m-grid">
+								<div class="m-grid-item">
+									<span class="m-grid-label">배당률</span>
+									<span class="m-grid-value up">${fmtPct(item.divYield)}</span>
+								</div>
+								<div class="m-grid-item">
+									<span class="m-grid-label">PER</span>
+									<span class="m-grid-value">${item.per || '-'}</span>
+								</div>
+								<div class="m-grid-item">
+									<span class="m-grid-label">52주 최고</span>
+									<span class="m-grid-value">${curr}${fmt(item.high52)}</span>
+								</div>
+							</div>
+							<div class="m-footer">
+								<div class="m-bar-group">
+									<div class="m-bar-label">
+										<span>등락률</span>
+										<span class="${changeVal > 0 ? 'up' : (changeVal < 0 ? 'down' : '')}">${fmtPct(changeVal)}</span>
+									</div>
+									<div class="m-bar-bg">
+										<div class="m-bar-fill" style="width:${changeW}%; background-color:${changeColor}; margin-${changeVal < 0 ? 'left' : 'right'}: auto;"></div>
+									</div>
+								</div>
+								<div class="m-bar-group">
+									<div class="m-bar-label">
+										<span>고점대비</span>
+										<span class="down">${fmtPct(dropVal)}</span>
+									</div>
+									<div class="m-bar-bg">
+										<div class="m-bar-fill" style="width:${dropW}%; background-color:${dropColor}; margin-left: auto;"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>`;
 				container.innerHTML += cardHtml;
 			});
 		}
@@ -1050,5 +909,4 @@
 		};
 	</script>
 </body>
-
 </html>
