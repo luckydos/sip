@@ -10,29 +10,23 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css" />
 
 	<style>
+		/* 모든 요소의 너비 계산에 패딩/테두리 포함 */
+		* {
+			box-sizing: border-box;
+		}
+
 		:root {
 			--bg-body: #f5f7fa;
 			--bg-card: #ffffff;
 			--text-main: #333333;
 			--text-sub: #666666;
-
-			/* [핵심] 모든 테두리 색상 완전 통일 */
 			--border-color: #e0e0e0;
-
-			/* 목표 입력란 배경색 (자연스러운 미색) */
-			--input-bg: #fcfcfc;
-			--input-text: #495057;
-
-			/* 헤더 배경 */
 			--header-bg: #f8f9fa;
-
 			--color-up: #e31b23;
 			--color-down: #0051c7;
-
 			--badge-buy: #e31b23;
 			--badge-sell: #0051c7;
 			--badge-hold: #868e96;
-
 			--tab-active-text: #111;
 			--tab-inactive-bg: #f1f3f5;
 			--tab-inactive-text: #999;
@@ -44,14 +38,59 @@
 			margin: 0;
 			padding: 40px 15px;
 			color: var(--text-main);
+			transition: background-color 0.3s ease;
+			overflow-y: scroll;
+			overflow-x: hidden;
+			/* 전체 가로 스크롤 방지 */
 		}
 
 		.container {
 			max-width: 1600px;
 			margin: 0 auto;
+			transition: all 0.3s ease;
+			width: 100%;
 		}
 
-		/* --- 헤더 --- */
+		/* --- 공통 유틸리티 --- */
+		.up {
+			color: var(--color-up) !important;
+			font-weight: 700;
+		}
+
+		.down {
+			color: var(--color-down) !important;
+			font-weight: 700;
+		}
+
+		.badge {
+			display: inline-block;
+			padding: 4px 8px;
+			border-radius: 6px;
+			font-size: 12px;
+			font-weight: 700;
+			color: white;
+			text-align: center;
+			min-width: 50px;
+		}
+
+		.badge.buy {
+			background: var(--badge-buy);
+		}
+
+		.badge.sell {
+			background: var(--badge-sell);
+		}
+
+		.badge.hold {
+			background: var(--badge-hold);
+		}
+
+		.badge.nodata {
+			background: #e9ecef;
+			color: #adb5bd;
+		}
+
+		/* --- 헤더 & 버튼 --- */
 		.dashboard-header {
 			margin-bottom: 20px;
 			display: flex;
@@ -64,45 +103,39 @@
 			font-size: 28px;
 			font-weight: 800;
 			color: #2c3e50;
-			letter-spacing: -0.5px;
 		}
 
-		.refresh-btn {
-			background-color: #fff;
+		.btn-group {
+			display: flex;
+			gap: 8px;
+		}
+
+		.action-btn {
+			background: #fff;
 			border: 1px solid var(--border-color);
 			border-radius: 8px;
 			padding: 10px 16px;
-			font-size: 14px;
 			font-weight: 600;
-			color: var(--text-sub);
 			cursor: pointer;
-			transition: all 0.2s ease;
 			display: flex;
-			align-items: center;
 			gap: 6px;
-			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+			align-items: center;
+			color: var(--text-sub);
+			transition: all 0.2s;
+			white-space: nowrap;
 		}
 
-		.refresh-btn:hover {
-			background-color: #fff;
-			color: #2c3e50;
-			border-color: #b0b8c1;
-			transform: translateY(-1px);
-			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+		.action-btn:hover {
+			background: #f8f9fa;
+			color: #333;
+			border-color: #bbb;
 		}
 
-		.refresh-btn:active {
-			transform: translateY(0);
-		}
-
-		/* --- 툴바 (탭 영역) --- */
 		.toolbar {
 			display: flex;
 			justify-content: space-between;
 			align-items: flex-end;
-			padding: 0;
 			margin-bottom: -1px;
-			/* 탭과 본문 연결 */
 			position: relative;
 			z-index: 10;
 		}
@@ -110,7 +143,6 @@
 		.tabs-group {
 			display: flex;
 			gap: 0;
-			/* 탭 사이 간격 제거하여 연결감 강화 */
 		}
 
 		.tab-btn {
@@ -119,51 +151,28 @@
 			border-bottom: none;
 			background: var(--tab-inactive-bg);
 			border-radius: 12px 12px 0 0;
-			font-size: 15px;
 			font-weight: 600;
 			color: var(--tab-inactive-text);
 			cursor: pointer;
-			transition: all 0.1s ease;
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			position: relative;
 			margin-right: 4px;
-			/* 탭 간격 */
+			display: flex;
+			gap: 8px;
+			align-items: center;
 		}
 
-		.tab-btn:hover {
-			background-color: #e9ecef;
-			color: var(--text-main);
-		}
-
-		/* [핵심] 활성 탭 디자인 */
 		.tab-btn.active {
-			background-color: var(--bg-card);
+			background: var(--bg-card);
 			color: var(--tab-active-text);
 			font-weight: 700;
-			/* 테두리 색상 통일 */
 			border: 1px solid var(--border-color);
-			/* 하단을 흰색으로 덮어서 뚫린 효과 */
 			border-bottom: 1px solid var(--bg-card);
 			z-index: 20;
 			padding-bottom: 13px;
-			/* 높이 보정 */
-			box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.02);
 		}
 
-		.flag-icon {
-			font-size: 18px;
-		}
-
-		/* 시간 표시 */
 		.time-display {
 			font-size: 13px;
 			color: #666;
-			font-weight: 500;
-			display: flex;
-			align-items: center;
-			gap: 6px;
 			background: #fff;
 			padding: 6px 16px;
 			border-radius: 20px;
@@ -171,134 +180,91 @@
 			margin-bottom: 8px;
 		}
 
-		.time-display i {
-			position: relative;
-			top: 1px;
-			color: #2c3e50;
-		}
-
-		/* --- 컨텐츠 박스 (테이블 감싸는 Div) --- */
 		.content-section {
 			display: none;
 			background: var(--bg-card);
-			/* 외곽 테두리 통일 */
 			border: 1px solid var(--border-color);
 			border-radius: 0 12px 12px 12px;
-			/* 왼쪽 위 직각 */
-			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 			padding: 20px;
-			animation: fadeIn 0.2s ease-out;
-			position: relative;
-			z-index: 5;
 		}
 
 		.content-section.active {
 			display: block;
 		}
 
-		@keyframes fadeIn {
-			from {
-				opacity: 0;
-				transform: translateY(5px);
-			}
-
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
+		/* --- PC View Styles --- */
+		.pc-view {
+			display: block;
 		}
 
-		/* --- 테이블 디자인 --- */
+		.mobile-view {
+			display: none;
+		}
+
+		/* 테이블 래퍼: 스크롤바 자체를 숨김 처리하여 깔끔하게 (내용은 잘릴 수 있음 -> 툴팁으로 해결) */
 		.table-responsive {
-			overflow-x: auto;
 			width: 100%;
-			/* 테이블 자체 외곽선 */
 			border: 1px solid var(--border-color);
 			border-radius: 8px;
+			overflow: hidden;
+			/* 강제로 스크롤 숨김 */
 		}
 
 		table {
+			/* [핵심 수정] min-width 제거하여 무조건 100% 맞춤 */
+			table-layout: fixed;
 			width: 100%;
+			/* min-width: 1200px;  <-- 이 부분을 삭제했습니다 */
 			border-collapse: separate;
 			border-spacing: 0;
-			min-width: 1400px;
 		}
 
 		th {
-			background-color: var(--header-bg);
-			color: #333;
-			font-weight: 700;
-			padding: 16px 12px;
+			background: var(--header-bg);
+			padding: 16px 8px;
 			text-align: center;
-			/* 테두리 색상 통일 */
 			border-bottom: 1px solid var(--border-color);
 			border-right: 1px solid var(--border-color);
-			white-space: nowrap;
 			position: sticky;
 			top: 0;
 			z-index: 10;
+			white-space: nowrap;
 			font-size: 14px;
-			letter-spacing: -0.3px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			/* 헤더도 넘치면 ... 처리 */
 		}
 
 		td {
-			padding: 14px 12px;
-			/* 내부 선 색상 통일 */
+			padding: 14px 8px;
+			/* 패딩을 살짝 줄여 공간 확보 */
 			border-bottom: 1px solid var(--border-color);
 			border-right: 1px solid var(--border-color);
-			vertical-align: middle;
 			text-align: right;
 			font-size: 14px;
+			color: #333;
+			vertical-align: middle;
+
+			/* [핵심] 내용이 칸보다 길면 ... 처리 */
 			white-space: nowrap;
-			color: #333;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 
-		/* 마지막 선 처리 */
-		th:last-child,
-		td:last-child {
-			border-right: none;
-		}
-
-		tbody tr:last-child td {
-			border-bottom: none;
-		}
-
-		tbody tr:hover td {
-			background-color: #f8f9fa !important;
-		}
-
-		/* [수정] 목표값 컬럼 자연스럽게 */
-		.input-val {
-			background-color: var(--input-bg) !important;
-			color: var(--input-text);
-			text-align: center;
-			/* 테두리는 다른 셀과 동일하게 유지 */
-			border-right: 1px solid var(--border-color);
-		}
-
-		th.input-val {
-			background-color: #e9ecef;
-			/* 헤더만 살짝 다르게 */
-			color: #333;
-		}
-
-		/* 고정 컬럼 (기업명) */
+		/* [고정 컬럼] */
 		th:first-child,
 		td:first-child {
 			position: sticky;
 			left: 0;
 			z-index: 20;
-			background-color: #fff;
-			border-right: 1px solid var(--border-color);
+			background: #fff;
 			text-align: center;
-			padding-left: 20px;
-			box-shadow: 2px 0 5px rgba(0, 0, 0, 0.02);
+			border-right: 1px solid var(--border-color);
 		}
 
 		th:first-child {
 			z-index: 30;
-			background-color: var(--header-bg);
-			border-top-left-radius: 0;
+			background: var(--header-bg);
 		}
 
 		.stock-name {
@@ -306,115 +272,167 @@
 			color: #212529;
 			font-size: 15px;
 			display: block;
-			max-width: 200px;        /* 글자가 이 너비를 넘어가면 자름 (조절 가능) */
-			white-space: nowrap;     /* 줄바꿈 금지 (한 줄로 표시) */
-			overflow: hidden;        /* 넘치는 텍스트 숨김 */
-			text-overflow: ellipsis; /* 잘린 부분에 '...' 표시 */
-
+			width: 100%;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 
-		.stock-code {
-			font-size: 12px;
-			color: #adb5bd;
-			margin-top: 3px;
-			display: block;
-			font-weight: 400;
-		}
-
-		/* 배지 */
-		.badge {
-			display: inline-block;
-			padding: 6px 10px;
-			border-radius: 6px;
-			font-size: 12px;
-			font-weight: 700;
-			color: white;
+		.input-val {
+			background-color: #fcfcfc;
+			color: #495057;
 			text-align: center;
-			min-width: 54px;
-		}
-
-		.badge.buy {
-			background: linear-gradient(135deg, #e31b23, #ff4d4d);
-		}
-
-		.badge.sell {
-			background: linear-gradient(135deg, #0051c7, #3388ff);
-		}
-
-		.badge.hold {
-			background-color: #868e96;
-			opacity: 0.9;
-		}
-
-		.badge.nodata {
-			background-color: #e9ecef;
-			color: #adb5bd;
-		}
-
-		.up {
-			color: var(--color-up);
-			font-weight: 700;
-		}
-
-		.down {
-			color: var(--color-down);
-			font-weight: 700;
-		}
-
-		.price-text {
-			font-family: 'Roboto', sans-serif;
-			font-weight: 600;
-			letter-spacing: -0.3px;
 		}
 
 		.graph-wrapper {
 			display: flex;
 			align-items: center;
 			justify-content: flex-end;
-			gap: 12px;
-			width: 140px;
+			gap: 6px;
+			width: 100%;
+			/* 그래프 영역도 유동적으로 */
 			margin-left: auto;
-		}
-
-		.graph-text {
-			width: 50px;
-			text-align: right;
-			font-size: 13px;
 		}
 
 		.bar-track {
 			flex-grow: 1;
 			height: 6px;
-			background-color: #eee;
+			background: #eee;
 			border-radius: 3px;
 			overflow: hidden;
 			display: flex;
-			position: relative;
+			min-width: 30px;
 		}
 
 		.bar-fill {
 			height: 100%;
 			border-radius: 4px;
-			transition: width 0.5s ease;
 		}
 
-		.loading-row td {
+		/* --- Mobile View Styles (Card) --- */
+		.mobile-card {
+			background: #fff;
+			border: 1px solid var(--border-color);
+			border-radius: 12px;
+			padding: 16px;
+			margin-bottom: 16px;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+		}
+
+		.m-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+			margin-bottom: 12px;
+			padding-bottom: 12px;
+			border-bottom: 1px solid #f0f0f0;
+		}
+
+		.m-stock-info h3 {
+			margin: 0;
+			font-size: 18px;
+			font-weight: 700;
+			color: #2c3e50;
+		}
+
+		.m-stock-info span {
+			font-size: 13px;
+			color: #adb5bd;
+			margin-top: 2px;
+			display: block;
+		}
+
+		.m-body {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+
+		.m-price-row {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-end;
+		}
+
+		.m-current-price {
+			font-size: 24px;
+			font-weight: 800;
+			color: #333;
+			letter-spacing: -0.5px;
+		}
+
+		.m-target-price {
+			font-size: 13px;
+			color: #888;
+			text-align: right;
+		}
+
+		.m-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 10px;
+			background: #f8f9fa;
+			padding: 12px;
+			border-radius: 8px;
+		}
+
+		.m-grid-item {
 			text-align: center;
-			color: #999;
-			padding: 60px;
-			border: none;
+		}
+
+		.m-grid-label {
+			display: block;
+			font-size: 11px;
+			color: #888;
+			margin-bottom: 4px;
+		}
+
+		.m-grid-value {
+			display: block;
+			font-size: 14px;
+			font-weight: 600;
+			color: #333;
+		}
+
+		.m-footer {
+			margin-top: 8px;
+			display: flex;
+			gap: 10px;
+		}
+
+		.m-bar-group {
+			flex: 1;
+		}
+
+		.m-bar-label {
+			display: flex;
+			justify-content: space-between;
+			font-size: 11px;
+			color: #666;
+			margin-bottom: 4px;
+		}
+
+		.m-bar-bg {
+			height: 6px;
+			background: #eee;
+			border-radius: 3px;
+			overflow: hidden;
+		}
+
+		.m-bar-fill {
+			height: 100%;
+			border-radius: 3px;
 		}
 
 		.spinner {
-			display: inline-block;
-			width: 24px;
-			height: 24px;
+			display: block;
+			width: 32px;
+			height: 32px;
+			margin: 0;
 			border: 3px solid rgba(0, 0, 0, 0.1);
 			border-radius: 50%;
-			border-top-color: var(--tab-active-text);
-			animation: spin 1s ease-in-out infinite;
-			vertical-align: middle;
-			margin-right: 10px;
+			border-top-color: #2c3e50;
+			animation: spin 1s infinite linear;
 		}
 
 		@keyframes spin {
@@ -423,113 +441,204 @@
 			}
 		}
 
+		.loading-msg {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 15px;
+			min-height: 50vh;
+			width: 100%;
+			color: #868e96;
+			font-weight: 500;
+			font-size: 15px;
+		}
+
+		/* ----------------------------------------------------
+           [Logic] View Mode Toggle
+           ---------------------------------------------------- */
 		@media (max-width: 768px) {
+			body:not(.force-pc) .pc-view {
+				display: none !important;
+			}
+
+			body:not(.force-pc) .mobile-view {
+				display: block !important;
+			}
+
+			body {
+				padding: 15px 10px;
+				background-color: #f0f2f5;
+			}
+
 			.container {
 				margin: 0;
+				max-width: 100%;
 			}
 
 			.dashboard-header {
 				flex-direction: column;
+				gap: 10px;
 				align-items: stretch;
-				gap: 15px;
-				margin-bottom: 20px;
 			}
 
-			.dashboard-title h2 {
-				font-size: 22px;
-			}
-
-			.refresh-btn {
+			.btn-group {
 				width: 100%;
+			}
+
+			.action-btn {
+				flex: 1;
 				justify-content: center;
 			}
 
 			.toolbar {
 				flex-direction: column;
-				align-items: stretch;
-				gap: 5px;
-				padding: 0;
-				margin-bottom: 5px;
+				gap: 10px;
 			}
-
-			.time-display {
-				width: 100%;
-				justify-content: flex-end;
-				background: transparent;
-				border: none;
-				box-shadow: none;
-				padding: 2px 5px;
-				font-size: 12px;
-				color: #868e96;
-				margin-bottom: 0;
-			}
-			.time-display i{ display: none; }
 
 			.tabs-group {
 				width: 100%;
-				gap: 6px;
 			}
 
 			.tab-btn {
 				flex: 1;
 				justify-content: center;
-				border-radius: 12px;
-				border: 1px solid var(--border-color);
 				background: #fff;
-				margin-right: 0;
+				border: 1px solid var(--border-color);
 			}
 
 			.tab-btn.active {
-				background: #2c3e50;
+				background: #333;
 				color: #fff;
-				border: none;
-				padding-bottom: 12px;
+				border: 1px solid #333;
 			}
 
-			.content-section {
-				border-radius: 16px;
+			.time-display {
+				width: 100%;
+				text-align: right;
+				background: transparent;
+				border: none;
 				padding: 0;
 			}
 
-			/* 기업명 글자 조절 */
-			.stock-name {
-				min-width: 105px;
-				max-width: 105px;
+			.time-display i {
+				display: none;
 			}
 
-			.table-responsive {
-				border-radius: 16px;
-				border: 1px solid var(--border-color);
-			}
-
-			.input-val {
-				padding: 16px 5px
-			}
-
-			th:first-child,
-			td:first-child {
-				padding-left: 15px;
-			}
-
-			/* 로딩 메시지 스타일 */
-			.loading-row td {
-				/* 1. 위치 고정 및 영역 설정 */
-				position: sticky;
-				left: 0;          /* 시작점은 왼쪽 끝 */
-				width: 100vw;     /* [핵심] 화면 전체 너비(Viewport Width) 사용 */
-				max-width: 100%;  /* 부모 요소 넘치지 않게 제한 */
-
-				/* 2. 내용물 정렬 */
-				display: block;   /* 블록 요소로 변경하여 너비 적용 */
-				text-align: center; /* 텍스트 가로 중앙 정렬 */
-
-				/* 3. 여백 및 디자인 */
-				padding: 60px 0;
+			.content-section {
+				padding: 0;
+				background: transparent;
 				border: none;
-				color: #999;
-				box-sizing: border-box;
+				box-shadow: none;
 			}
 		}
+
+		body.force-mobile {
+			background-color: #2c3e50 !important;
+			overflow: hidden;
+		}
+
+		body.force-mobile .container {
+			max-width: 420px;
+			height: 90vh;
+			margin: 20px auto;
+			background-color: #f0f2f5;
+			padding: 20px 15px;
+			border-radius: 20px;
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+			overflow-y: auto;
+			display: block;
+		}
+
+		body.force-mobile .pc-view {
+			display: none !important;
+		}
+
+		body.force-mobile .mobile-view {
+			display: block !important;
+		}
+
+		body.force-mobile .dashboard-header {
+			flex-direction: column;
+			gap: 10px;
+			align-items: stretch;
+		}
+
+		body.force-mobile .btn-group {
+			width: 100%;
+		}
+
+		body.force-mobile .action-btn {
+			flex: 1;
+			justify-content: center;
+		}
+
+		body.force-mobile .toolbar {
+			flex-direction: column;
+			gap: 10px;
+		}
+
+		body.force-mobile .tabs-group {
+			width: 100%;
+		}
+
+		body.force-mobile .tab-btn {
+			flex: 1;
+			justify-content: center;
+			background: #fff;
+			border: 1px solid var(--border-color);
+		}
+
+		body.force-mobile .tab-btn.active {
+			background: #333;
+			color: #fff;
+			border: 1px solid #333;
+		}
+
+		body.force-mobile .time-display {
+			width: 100%;
+			text-align: right;
+			background: transparent;
+			border: none;
+			padding: 0;
+		}
+
+		body.force-mobile .time-display i {
+			display: none;
+		}
+
+		body.force-mobile .content-section {
+			padding: 0;
+			background: transparent;
+			border: none;
+			box-shadow: none;
+		}
+
+		body.force-pc {
+			overflow-x: hidden;
+		}
+
+		body.force-pc .container {
+			width: 100%;
+			max-width: 100%;
+			padding: 0 5px;
+		}
+
+		body.force-pc .pc-view {
+			display: block !important;
+		}
+
+		body.force-pc .mobile-view {
+			display: none !important;
+		}
+
+		body.force-pc .table-responsive {
+			display: block;
+			width: 100%;
+			overflow: hidden;
+		}
+
+		/* PC강제모드에서도 스크롤제거 */
 	</style>
 </head>
 
@@ -540,9 +649,14 @@
 			<div class="dashboard-title">
 				<h2>Stock Investment Plan</h2>
 			</div>
-			<button class="refresh-btn" onclick="location.reload()">
-				<i class="fas fa-rotate-right"></i> 새로고침
-			</button>
+			<div class="btn-group">
+				<button id="viewToggleBtn" class="action-btn" onclick="toggleViewMode()">
+					<i class="fas fa-mobile-alt"></i> <span>모바일 화면</span>
+				</button>
+				<button class="action-btn" onclick="location.reload()">
+					<i class="fas fa-rotate-right"></i> <span>새로고침</span>
+				</button>
+			</div>
 		</div>
 
 		<div class="toolbar">
@@ -561,8 +675,26 @@
 		</div>
 
 		<div id="korea" class="content-section active">
-			<div class="table-responsive">
+			<div class="pc-view table-responsive">
 				<table id="tableKorea">
+					<colgroup>
+						<col style="width: 10%;">
+						<col style="width: 5%;">
+						<col style="width: 5%;">
+						<col style="width: 5%;">
+						<col style="width: 5%;">
+						<col style="width: 7%;">
+						<col style="width: 10%;">
+						<col style="width: 7%;">
+						<col style="width: 10%;">
+						<col style="width: 7%;">
+						<col style="width: 4%;">
+						<col style="width: 6%;">
+						<col style="width: 4%;">
+						<col style="width: 5%;">
+						<col style="width: 5%;">
+						<col style="width: 5%;">
+					</colgroup>
 					<thead>
 						<tr>
 							<th>기업명</th>
@@ -586,11 +718,30 @@
 					<tbody id="tbodyKorea"></tbody>
 				</table>
 			</div>
+			<div id="listKorea" class="mobile-view"></div>
 		</div>
 
 		<div id="usa" class="content-section">
-			<div class="table-responsive">
+			<div class="pc-view table-responsive">
 				<table id="tableUSA">
+					<colgroup>
+						<col style="width: 10%;">
+						<col style="width: 5%;">
+						<col style="width: 5%;">
+						<col style="width: 5%;">
+						<col style="width: 5%;">
+						<col style="width: 7%;">
+						<col style="width: 10%;">
+						<col style="width: 7%;">
+						<col style="width: 10%;">
+						<col style="width: 7%;">
+						<col style="width: 4%;">
+						<col style="width: 6%;">
+						<col style="width: 4%;">
+						<col style="width: 5%;">
+						<col style="width: 5%;">
+						<col style="width: 5%;">
+					</colgroup>
 					<thead>
 						<tr>
 							<th>기업명</th>
@@ -602,7 +753,7 @@
 							<th>등락률</th>
 							<th>52주 최고</th>
 							<th>고점 대비</th>
-							<th>시가총액<br><span style="font-weight:400; color:#999; font-size:0.85em">(AUM)</span></th>
+							<th>시가총액(AUM)</th>
 							<th>PER</th>
 							<th>EPS</th>
 							<th>PBR</th>
@@ -614,6 +765,7 @@
 					<tbody id="tbodyUSA"></tbody>
 				</table>
 			</div>
+			<div id="listUSA" class="mobile-view"></div>
 		</div>
 	</div>
 
@@ -633,8 +785,58 @@
 			{ name: "Coca-Cola", code: "KO", targetDiv: 3.00, targetPer: null },
 			{ name: "Realty Income", code: "O", targetDiv: 6.00, targetPer: null },
 			{ name: "Pfizer", code: "PFE", targetDiv: 7.00, targetPer: null },
-			{ name: "iShares 20+ Year Treasury Bond ETF", code: "TLT", targetDiv: 4.30, targetPer: null }
+			{ name: "iShares 20+ Treasury", code: "TLT", targetDiv: 4.30, targetPer: null }
 		];
+
+		function toggleViewMode() {
+			const body = document.body;
+			const isPcWidth = window.innerWidth > 768;
+
+			const hasForcePc = body.classList.contains('force-pc');
+			const hasForceMobile = body.classList.contains('force-mobile');
+
+			if (isPcWidth) {
+				if (hasForceMobile) body.classList.remove('force-mobile');
+				else body.classList.add('force-mobile');
+			} else {
+				if (hasForcePc) body.classList.remove('force-pc');
+				else body.classList.add('force-pc');
+			}
+			updateButtonState();
+		}
+
+		function updateButtonState() {
+			const body = document.body;
+			const btnIcon = document.querySelector('#viewToggleBtn i');
+			const btnText = document.querySelector('#viewToggleBtn span');
+			const isPcWidth = window.innerWidth > 768;
+
+			const hasForcePc = body.classList.contains('force-pc');
+			const hasForceMobile = body.classList.contains('force-mobile');
+
+			if (hasForceMobile) {
+				btnIcon.className = "fas fa-desktop";
+				btnText.innerText = "PC 화면 복귀";
+				return;
+			}
+			if (hasForcePc) {
+				btnIcon.className = "fas fa-mobile-alt";
+				btnText.innerText = "모바일 화면 복귀";
+				return;
+			}
+
+			if (isPcWidth) {
+				btnIcon.className = "fas fa-mobile-alt";
+				btnText.innerText = "모바일 화면 보기";
+			} else {
+				btnIcon.className = "fas fa-desktop";
+				btnText.innerText = "PC 화면 보기";
+			}
+		}
+
+		window.addEventListener('resize', () => {
+			updateButtonState();
+		});
 
 		function calculateTarget(data, config) {
 			try {
@@ -647,27 +849,26 @@
 					return data.eps * config.targetPer;
 				}
 				return "no data";
-			} catch (e) {
-				return "err";
-			}
+			} catch (e) { return "err"; }
 		}
 
 		function getAction(current, target) {
 			if (typeof target === 'string') return { text: "판단불가", class: "nodata" };
 			if (!current) return { text: "로딩중", class: "nodata" };
-
 			if (current < target) return { text: "매수", class: "buy" };
 			else if (current > target * 1.2) return { text: "매도", class: "sell" };
 			else return { text: "보유", class: "hold" };
 		}
 
 		async function fetchAndRender(country) {
-			const tableId = country === 'korea' ? 'tbodyKorea' : 'tbodyUSA';
+			const tbody = document.getElementById(country === 'korea' ? 'tbodyKorea' : 'tbodyUSA');
+			const mobileList = document.getElementById(country === 'korea' ? 'listKorea' : 'listUSA');
 			const stockList = country === 'korea' ? koreaStocks : usaStocks;
-			const tbody = document.getElementById(tableId);
 			const isKorea = country === 'korea';
 
-			tbody.innerHTML = `<tr class="loading-row"><td colspan="16"><div class="spinner"></div>데이터를 불러오는 중입니다...</td></tr>`;
+			const loadingHtml = `<div class="loading-msg"><div class="spinner"></div> 데이터를 불러오는 중...</div>`;
+			tbody.innerHTML = `<tr><td colspan="16" style="text-align:center; padding:50px;">${loadingHtml}</td></tr>`;
+			mobileList.innerHTML = loadingHtml;
 
 			const promises = stockList.map(item =>
 				fetch(`${API_URL}?ticker=${item.code}`)
@@ -681,17 +882,22 @@
 
 			try {
 				const rowDataList = await Promise.all(promises);
+
 				const validData = rowDataList.find(d => !d.error && d.time);
 				if (validData) {
-					const timeStr = validData.time;
-					window[`time_${country}`] = timeStr;
+					window[`time_${country}`] = validData.time;
 					if (document.querySelector('.tab-btn.active').innerText.includes(isKorea ? "한국" : "미국")) {
-						document.getElementById('globalTime').innerText = timeStr;
+						document.getElementById('globalTime').innerText = validData.time;
 					}
 				}
+
 				renderTableBody(tbody, rowDataList, isKorea);
+				renderMobileList(mobileList, rowDataList, isKorea);
+
 			} catch (error) {
-				tbody.innerHTML = `<tr><td colspan="16" style="text-align:center;">데이터 로드 실패</td></tr>`;
+				console.error(error);
+				tbody.innerHTML = `<tr><td colspan="16">로드 실패</td></tr>`;
+				mobileList.innerHTML = `<div>로드 실패</div>`;
 			}
 		}
 
@@ -701,76 +907,127 @@
 			const maxDrop = Math.max(...dataList.map(d => d.dropRate ? Math.abs(d.dropRate) : 0)) || 0.01;
 
 			dataList.forEach(item => {
-				if (item.error) {
-					tbody.innerHTML += `<tr><td>${item.name}</td><td colspan="15">호출 실패</td></tr>`;
-					return;
-				}
+				if (item.error) { tbody.innerHTML += `<tr><td>${item.name}</td><td colspan="15">Error</td></tr>`; return; }
 
 				const action = getAction(item.price, item.targetPrice);
-				const currency = isKorea ? "₩" : "$";
-				const fmt = (n) => n ? n.toLocaleString(undefined, { maximumFractionDigits: 0 }) : "-";
-				const fmtUsd = (n) => n ? n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "-";
+				const curr = isKorea ? "₩" : "$";
+				const fmt = (n) => n ? n.toLocaleString(undefined, { maximumFractionDigits: isKorea ? 0 : 2 }) : "-";
 				const fmtPct = (n) => n ? (n * 100).toFixed(2) + "%" : "0.00%";
 
-				const displayPrice = isKorea ? fmt(item.price) : fmtUsd(item.price);
-				const displayTarget = typeof item.targetPrice === 'number' ? (isKorea ? fmt(item.targetPrice) : fmtUsd(item.targetPrice)) : "-";
+				const changeColor = (item.changeRate || 0) < 0 ? "#0051c7" : "#e31b23";
+				const changeW = (Math.abs(item.changeRate || 0) / maxChange) * 100;
+				const dropW = (Math.abs(item.dropRate || 0) / maxDrop) * 100;
 
-				const changeVal = item.changeRate || 0;
-				const changeColor = changeVal < 0 ? "#0051c7" : "#e31b23";
-				const changeWidth = (Math.abs(changeVal) / maxChange) * 100;
+				let marketCap = item.marketCap || "-";
+				if (marketCap.includes("조 ")) marketCap = marketCap.replace("조 ", "조<br>");
 
-				const dropVal = item.dropRate || 0;
-				const dropColor = "#0051c7";
-				const dropWidth = (Math.abs(dropVal) / maxDrop) * 100;
-
-				let marketCapDisplay = item.marketCap;
-				if (marketCapDisplay && marketCapDisplay.includes("조 ")) {
-					marketCapDisplay = marketCapDisplay.replace("조 ", "조<br>");
-				}
-
+				/* [수정] 모든 셀에 툴팁 적용 */
 				const tr = `
                     <tr>
-                        <td>
-                            <span class="stock-name">${item.name}</span>
-                            <span class="stock-code">${item.ticker || item.code}</span>
-                        </td>
+                        <td><span class="stock-name" title="${item.name}">${item.name}</span><br><span style="font-size:11px; color:#999;">${item.ticker || item.code}</span></td>
                         <td class="input-val">${item.targetDiv ? item.targetDiv.toFixed(2) + "%" : ""}</td>
-                        <td class="input-val">${item.targetPer ? item.targetPer : ""}</td>
-                        
+                        <td class="input-val">${item.targetPer || ""}</td>
                         <td style="text-align:center;"><span class="badge ${action.class}">${action.text}</span></td>
-                        <td class="price-text" style="color:#2c3e50;">${currency}${displayTarget}</td>
-                        <td class="price-text" style="font-weight:700;">${currency}${displayPrice}</td>
-                        
+                        <td title="${curr}${fmt(item.targetPrice)}" style="color:#666;">${curr}${fmt(item.targetPrice)}</td>
+                        <td title="${curr}${fmt(item.price)}" style="font-weight:700;">${curr}${fmt(item.price)}</td>
                         <td>
                             <div class="graph-wrapper">
-                                <span class="graph-text ${changeVal > 0 ? 'up' : (changeVal < 0 ? 'down' : '')}">${fmtPct(changeVal)}</span>
-                                <div class="bar-track">
-                                    <div class="bar-fill" style="width:${changeWidth}%; background-color:${changeColor}; margin-${changeVal < 0 ? 'left' : 'right'}: auto;"></div>
-                                </div>
+                                <span class="${(item.changeRate || 0) > 0 ? 'up' : (item.changeRate || 0) < 0 ? 'down' : ''}">${fmtPct(item.changeRate)}</span>
+                                <div class="bar-track"><div class="bar-fill" style="width:${changeW}%; background:${changeColor}; margin-${(item.changeRate || 0) < 0 ? 'left' : 'right'}:auto;"></div></div>
                             </div>
                         </td>
-
-                        <td class="price-text">${currency}${isKorea ? fmt(item.high52) : fmtUsd(item.high52)}</td>
-
+                        <td title="${curr}${fmt(item.high52)}">${curr}${fmt(item.high52)}</td>
                         <td>
                             <div class="graph-wrapper">
-                                <span class="graph-text down">${fmtPct(dropVal)}</span>
-                                <div class="bar-track">
-                                    <div class="bar-fill" style="width:${dropWidth}%; background-color:${dropColor}; margin-left: auto;"></div>
-                                </div>
+                                <span class="down">${fmtPct(item.dropRate)}</span>
+                                <div class="bar-track"><div class="bar-fill" style="width:${dropW}%; background:#0051c7; margin-left:auto;"></div></div>
                             </div>
                         </td>
-
-                        <td style="line-height:1.3">${marketCapDisplay}</td>
-                        <td>${item.per || '-'}</td>
-                        <td class="price-text">${isKorea ? '₩' : '$'}${isKorea ? fmt(item.eps) : fmtUsd(item.eps)}</td>
-                        <td>${item.pbr || '-'}</td>
-                        <td style="color:#e31b23; font-weight:600;">${fmtPct(item.divYield)}</td>
-                        <td class="price-text">${isKorea ? '₩' : '$'}${isKorea ? fmt(item.divAmt) : fmtUsd(item.divAmt)}</td>
-                        <td>${fmtPct(item.payout)}</td>
-                    </tr>
-                `;
+                        <td style="line-height:1.2; font-size:12px;">${marketCap}</td>
+                        <td title="${item.per}">${item.per || '-'}</td>
+                        <td title="${curr}${fmt(item.eps)}">${curr}${fmt(item.eps)}</td>
+                        <td title="${item.pbr}">${item.pbr || '-'}</td>
+                        <td title="${fmtPct(item.divYield)}" style="color:#e31b23; font-weight:600;">${fmtPct(item.divYield)}</td>
+                        <td title="${curr}${fmt(item.divAmt)}">${curr}${fmt(item.divAmt)}</td>
+                        <td title="${fmtPct(item.payout)}">${fmtPct(item.payout)}</td>
+                    </tr>`;
 				tbody.innerHTML += tr;
+			});
+		}
+
+		function renderMobileList(container, dataList, isKorea) {
+			container.innerHTML = "";
+			const maxChange = Math.max(...dataList.map(d => d.changeRate ? Math.abs(d.changeRate) : 0)) || 0.01;
+			const maxDrop = Math.max(...dataList.map(d => d.dropRate ? Math.abs(d.dropRate) : 0)) || 0.01;
+
+			dataList.forEach(item => {
+				if (item.error) return;
+				const action = getAction(item.price, item.targetPrice);
+				const curr = isKorea ? "₩" : "$";
+				const fmt = (n) => n ? n.toLocaleString(undefined, { maximumFractionDigits: isKorea ? 0 : 2 }) : "-";
+				const fmtPct = (n) => n ? (n * 100).toFixed(2) + "%" : "0.00%";
+
+				const changeVal = item.changeRate || 0;
+				const dropVal = item.dropRate || 0;
+				const changeColor = changeVal < 0 ? "#0051c7" : "#e31b23";
+				const changeW = Math.min((Math.abs(changeVal) / maxChange) * 100, 100);
+				const dropW = Math.min((Math.abs(dropVal) / maxDrop) * 100, 100);
+
+				const cardHtml = `
+                    <div class="mobile-card">
+                        <div class="m-header">
+                            <div class="m-stock-info">
+                                <h3>${item.name}</h3>
+                                <span>${item.ticker || item.code}</span>
+                            </div>
+                            <span class="badge ${action.class}" style="font-size:14px; padding:6px 12px;">${action.text}</span>
+                        </div>
+                        <div class="m-body">
+                            <div class="m-price-row">
+                                <div class="m-current-price ${changeVal > 0 ? 'up' : (changeVal < 0 ? 'down' : '')}">
+                                    ${curr}${fmt(item.price)}
+                                </div>
+                                <div class="m-target-price">
+                                    목표가 <strong>${curr}${fmt(item.targetPrice)}</strong>
+                                </div>
+                            </div>
+                            <div class="m-grid">
+                                <div class="m-grid-item">
+                                    <span class="m-grid-label">배당률</span>
+                                    <span class="m-grid-value up">${fmtPct(item.divYield)}</span>
+                                </div>
+                                <div class="m-grid-item">
+                                    <span class="m-grid-label">PER</span>
+                                    <span class="m-grid-value">${item.per || '-'}</span>
+                                </div>
+                                <div class="m-grid-item">
+                                    <span class="m-grid-label">52주 최고</span>
+                                    <span class="m-grid-value">${curr}${fmt(item.high52)}</span>
+                                </div>
+                            </div>
+                            <div class="m-footer">
+                                <div class="m-bar-group">
+                                    <div class="m-bar-label">
+                                        <span>등락률</span>
+                                        <span class="${changeVal > 0 ? 'up' : (changeVal < 0 ? 'down' : '')}">${fmtPct(changeVal)}</span>
+                                    </div>
+                                    <div class="m-bar-bg">
+                                        <div class="m-bar-fill" style="width:${changeW}%; background-color:${changeColor}; margin-${changeVal < 0 ? 'left' : 'right'}: auto;"></div>
+                                    </div>
+                                </div>
+                                <div class="m-bar-group">
+                                    <div class="m-bar-label">
+                                        <span>고점대비</span>
+                                        <span class="down">${fmtPct(dropVal)}</span>
+                                    </div>
+                                    <div class="m-bar-bg">
+                                        <div class="m-bar-fill" style="width:${dropW}%; background-color:#0051c7; margin-left: auto;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+				container.innerHTML += cardHtml;
 			});
 		}
 
@@ -779,12 +1036,12 @@
 			event.currentTarget.classList.add('active');
 			document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
 			document.getElementById(country).classList.add('active');
-
 			const savedTime = window[`time_${country}`];
-			document.getElementById('globalTime').innerText = savedTime || "업데이트 중...";
+			document.getElementById('globalTime').innerText = savedTime || "업데이트 대기중...";
 		}
 
 		window.onload = () => {
+			updateButtonState();
 			fetchAndRender('korea');
 			fetchAndRender('usa');
 		};
