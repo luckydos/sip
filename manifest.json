@@ -1,7 +1,7 @@
 {
 	"name": "Stock Investment Plan",
 	"short_name": "SIP",
-	"description": "실시간 주식 투자 계획 대시보드",
+	"description": "SIP",
 	"lang": "ko-KR",
 	"start_url": "/sip/",
 	"scope": "/sip/",
