@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<title>Stock Investment Plan</title>
 	<link rel="manifest" href="./manifest.json">
 	<link rel="icon" href="./images/favicon.ico" type="image/x-icon">
@@ -12,8 +12,21 @@
 			margin: 0;
 			padding: 0;
 			height: 100%;
-			overflow: hidden;
-			background-color: #f5f7fa; /* Apps Script 배경색과 일치시킴 */
+			width: 100%;
+			/* overflow: hidden; 을 제거하거나 auto로 변경 */
+			overflow: auto; 
+			background-color: #f5f7fa;
+			/* iOS에서 iframe 스크롤을 부드럽게 만들기 위한 필수 속성 */
+			-webkit-overflow-scrolling: touch;
+		}
+		.iframe-container {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			overflow: auto;
+			-webkit-overflow-scrolling: touch;
 		}
 		iframe {
 			width: 100%;
@@ -24,6 +37,8 @@
 	</style>
 </head>
 <body>
-<iframe src="https://script.google.com/macros/s/AKfycbz80x6AyIftaDyqX68cyv3spp2x8gg14Rq1gPnb8NSToi0LInPgOkBbn2lflJSkd_8u/exec"></iframe>
+	<div class="iframe-container">
+		<iframe src="https://script.google.com/macros/s/AKfycbz80x6AyIftaDyqX68cyv3spp2x8gg14Rq1gPnb8NSToi0LInPgOkBbn2lflJSkd_8u/exec"></iframe>
+	</div>
 </body>
 </html>
